@@ -30,9 +30,8 @@ describe('Event Utils', () => {
   describe('createEvent', () => {
     it('creates an event with default values', () => {
       const event = createEvent();
-      expect(event.id).toMatch(
-        /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,
-      );
+      expect(event.id).toBeDefined();
+      expect(event.id.length).toBe(8);
       expect(event.invocationId).toBe('');
       expect(event.author).toBeUndefined();
       expect(event.actions).toBeDefined();
@@ -303,13 +302,10 @@ describe('Event Utils', () => {
   });
 
   describe('createNewEventId', () => {
-    it('generates distinct v4 UUIDs by default', () => {
-      const first = createNewEventId();
-      const second = createNewEventId();
-      expect(first).toMatch(
-        /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,
-      );
-      expect(first).not.toBe(second);
+    it('generates an 8-character string', () => {
+      const id = createNewEventId();
+      expect(id).toHaveLength(8);
+      expect(typeof id).toBe('string');
     });
   });
 

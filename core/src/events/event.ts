@@ -8,8 +8,7 @@ import {FunctionCall, FunctionResponse} from '@google/genai';
 
 import {LlmResponse} from '../models/llm_response.js';
 
-import {randomUUID} from '../utils/env_aware_utils.js';
-import {newId} from '../utils/id_provider.js';
+import {newId, newIdOr} from '../utils/id_provider.js';
 import {toCamelCase, toSnakeCase} from '../utils/object_notation_utils.js';
 import {createEventActions, EventActions} from './event_actions.js';
 
@@ -223,7 +222,7 @@ export function getFunctionCalls(event: Event): FunctionCall[] {
 export const AF_FUNCTION_CALL_ID_PREFIX = 'adk-';
 
 export function generateClientFunctionCallId(): string {
-  return `${AF_FUNCTION_CALL_ID_PREFIX}${randomUUID()}`;
+  return `${AF_FUNCTION_CALL_ID_PREFIX}${newId()}`;
 }
 
 /**
@@ -332,6 +331,9 @@ export function pruneThoughts(event: Event): Event {
   };
 }
 
+const ASCII_LETTERS_AND_NUMBERS =
+  'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+
 /**
  * Type guard to check if an object is an instance of Event.
  *
@@ -351,10 +353,24 @@ export function isEvent(obj: unknown): obj is Event {
 /**
  * Generates a new unique ID for the event.
  *
- * The ID comes from the provider set with `setIdProvider`.
+ * The ID comes from the provider set with `setIdProvider`, or is 8 random
+ * alphanumeric characters when none is set.
  */
 export function createNewEventId(): string {
-  return newId();
+  return newIdOr(createRandomEventId);
+}
+
+function createRandomEventId(): string {
+  let id = '';
+
+  for (let i = 0; i < 8; i++) {
+    id +=
+      ASCII_LETTERS_AND_NUMBERS[
+        Math.floor(Math.random() * ASCII_LETTERS_AND_NUMBERS.length)
+      ];
+  }
+
+  return id;
 }
 
 /**
